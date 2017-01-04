@@ -1,0 +1,51 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}5268{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="http://res.wx.qq.com/open/libs/weui/1.1.0/weui.min.css" />
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse">
+	<div class="container">
+		<div class="navbar-header">
+			<a class="navbar-brand" href="#">5268</a>
+		</div>
+		<div class="navbar-collapse collapse">
+			<ul class="nav navbar-nav">
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="page">
+    <div class="page__bd" style="height: 100%;">
+        <div class="weui-tab">
+            <div class="weui-tab__panel">
+
+            </div>
+            <div class="weui-tabbar">
+                <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on">
+                    <img src="../static/images/compass.png" alt="" class="weui-tabbar__icon">
+                    <p class="weui-tabbar__label">微信</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <img src="../static/images/success.png" alt="" class="weui-tabbar__icon">
+                    <p class="weui-tabbar__label">通讯录</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <img src="../static/images/all.png" alt="" class="weui-tabbar__icon">
+                    <p class="weui-tabbar__label">发现</p>
+                </a>
+                <a href="javascript:;" class="weui-tabbar__item">
+                    <img src="../static/images/account.png" alt="" class="weui-tabbar__icon">
+                    <p class="weui-tabbar__label">我</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
