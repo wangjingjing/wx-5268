@@ -2,10 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from flask import Flask
+from flask_bootstrap import Bootstrap
 import logging
 from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__, instance_relative_config=True)
+Bootstrap(app)
 # 加载配置
 app.config.from_object('config')
 app.config.from_pyfile('config.py')

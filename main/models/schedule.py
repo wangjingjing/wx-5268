@@ -9,11 +9,14 @@ class Schedule(BaseModel):
     __tablename__ = 'SCHEDULE'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(64))
     type = db.Column(db.String(1), nullable=False)
-    planDate = db.Column(db.String(16), name='PLAN_DATE', nullable=True)
-    addressId = db.Column(db.String(32), name='ADDRESS_ID', nullable=True)
-    opponentId = db.Column(db.String(32), name='OPPONENT_ID', nullable=True)
-    remark = db.Column(db.Text, nullable=True)
+    planDate = db.Column(db.String(16), name='PLAN_DATE')
+    addressId = db.Column(db.String(32), name='ADDRESS_ID')
+    addressName = db.Column(db.String(64), name='ADDRESS_NAME')
+    opponentId = db.Column(db.String(32), name='OPPONENT_ID')
+    opponetName = db.Column(db.String(64), name='OPPONENT_NAME')
+    remark = db.Column(db.Text)
 
     def __init__(self, type, planDate=None, addressId=None, 
         opponentId=None, remark=None):
