@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from . import db
+from ..consts import Constant
 import uuid
 from datetime import datetime
 
@@ -15,7 +16,8 @@ class BaseModel(db.Model):
     }
 
     id = db.Column(db.String(32), default=uuid.uuid1(), primary_key=True, nullable=False)
-    useState = db.Column(db.String(1), name='USE_STATE', default='1', nullable=False)
+    useState = db.Column(db.String(1), name='USE_STATE', 
+        default=Constant.USE_STATE_YES, nullable=False)
     createDate = db.Column(db.DateTime, name='CREATE_DATE', default=datetime.now) 
     createUserId = db.Column(db.String(32), name='CREATE_USER_ID')
     createUserName = db.Column(db.String(32), name='CREATE_USER_NAME')

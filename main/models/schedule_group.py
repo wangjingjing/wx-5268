@@ -2,7 +2,9 @@
 # -*- coding: utf-8 -*-
 
 from . import db
+from ..consts imort Constant
 from .baseModel import BaseModel
+from .schedule import Schedule
 
 class ScheduleGroup(BaseModel):
     
@@ -26,3 +28,9 @@ class ScheduleGroup(BaseModel):
     def update(self):
         db.session.commit()
         return self
+
+def getGroupSchedule(groupId):
+    return db.session.query(Schedule).join(ScheduleGroup, 
+        Schedule.id == ScheduleGroup.scheduleId).filter(
+        ScheduleGroup.groupId == groupId, 
+        ScheduleGroup.useState == Constant.USE_STATE_YES).all()
