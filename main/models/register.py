@@ -4,21 +4,22 @@
 from . import db
 from .baseModel import BaseModel
 
+
 class Register(BaseModel):
     
     __tablename__ = 'REGISTER_INFO'
 
-    openId = db.Column(db.String(32), name='OPEN_ID', nullable=False)
+    open_id = db.Column(db.String(32), name='OPEN_ID', nullable=False)
     name = db.Column(db.String(32), nullable=True)
-    mobileNo = db.Column(db.String(15), name='MOBILE_NO', nullable=True)
+    mobile_no = db.Column(db.String(15), name='MOBILE_NO', nullable=True)
 
-    def __init__(self, openId, name=None, mobileNo=None):
-        self.openId = openId
+    def __init__(self, open_id, name=None, mobile_no=None):
+        self.open_id = open_id
         self.name = name
-        self.mobileNo = mobileNo
+        self.mobile_no = mobile_no
 
     def __repr__(self):
-        return '<openId %r>' % self.openId
+        return 'Register<open_id %r>' % self.open_id
 
     def save(self):
         db.session.add(self)

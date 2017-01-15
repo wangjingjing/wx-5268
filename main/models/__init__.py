@@ -4,7 +4,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from .. import app
 
+
 db = SQLAlchemy(app)
 
-def getObjectById(clazz, id):
-    return db.session.query(clazz).filter(clazz.id == id).first()
+
+def get_object_by_id(clazz, id):
+    return db.session.query(clazz).filter(clazz.id == id).one()

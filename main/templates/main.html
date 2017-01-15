@@ -100,7 +100,7 @@
         var padding = ($(window).height() - $('.weui-tabbar').height()) / 2;
         $panel.html(getLoadingHtml(padding));
         
-        $panel.load('{{ url_for('getAvailableSchedule') }}');
+        $panel.load('{{ url_for('get_available_schedule') }}');
     }
 </script>
 {% endblock %}

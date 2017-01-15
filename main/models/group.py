@@ -4,6 +4,7 @@
 from . import db
 from .baseModel import BaseModel
 
+
 class Group(BaseModel):
     
     __tablename__ = 'GROUP_INFO'
@@ -14,7 +15,7 @@ class Group(BaseModel):
         self.name = name
 
     def __repr__(self):
-        return '<name %r>' % self.name
+        return 'Group<name %r>' % self.name
 
     def save(self):
         db.session.add(self)

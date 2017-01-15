@@ -4,24 +4,25 @@
 from . import db
 from .baseModel import BaseModel
 
+
 class User(BaseModel):
     
     __tablename__ = 'USER_INFO'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    openId = db.Column(db.String(32), name='OPEN_ID', index=True, unique=True, nullable=False)
-    nickName = db.Column(db.String(64), name='NICK_NAME', nullable=True)
-    realName = db.Column(db.String(32), name='REAL_NAME', nullable=True)
-    mobileNo = db.Column(db.String(15), name='MOBILE_NO', nullable=True)
+    open_id = db.Column(db.String(32), name='OPEN_ID', index=True, unique=True, nullable=False)
+    nick_name = db.Column(db.String(64), name='NICK_NAME', nullable=True)
+    real_name = db.Column(db.String(32), name='REAL_NAME', nullable=True)
+    mobile_no = db.Column(db.String(15), name='MOBILE_NO', nullable=True)
 
-    def __init__(self, openId, nickName=None, realName=None, mobileNo=None):
-        self.openId = openId
-        self.nickName = nickName
-        self.realName = realName
-        self.mobileNo = mobileNo
+    def __init__(self, open_id, nick_name=None, real_name=None, mobile_no=None):
+        self.open_id = open_id
+        self.nick_name = nick_name
+        self.real_name = real_name
+        self.mobile_no = mobile_no
 
     def __repr__(self):
-        return '<openId %r>' % self.openId
+        return 'User<open_id %r>' % self.open_id
 
     def save(self):
         db.session.add(self)

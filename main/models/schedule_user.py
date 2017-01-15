@@ -4,20 +4,22 @@
 from . import db
 from ..consts import Constant
 from .baseModel import BaseModel
+from .schedule import Schedule
+
 
 class ScheduleUser(BaseModel):
     
     __tablename__ = 'SCHEDULE_USER'
 
-    scheduleId = db.Column(db.String(32), name='SCHEDULE_ID', nullable=False)
-    userId = db.Column(db.String(32), name='USER_ID', nullable=False)
+    schedule_d = db.Column(db.String(32), name='SCHEDULE_ID', nullable=False)
+    user_d = db.Column(db.String(32), name='USER_ID', nullable=False)
 
-    def __init__(self, scheduleId, userId):
-        self.scheduleId = scheduleId
-        self.userId = userId
+    def __init__(self, schedule_id, user_id):
+        self.schedule_id = schedule_id
+        self.user_id = user_id
 
     def __repr__(self):
-        return '<ID %r>' % self.id
+        return 'ScheduleUser<ID %r>' % self.id
 
     def save(self):
         db.session.add(self)
@@ -28,16 +30,18 @@ class ScheduleUser(BaseModel):
         db.session.commit()
         return self
 
-def getFutureSchedulesOfUser(userId, currentTime):
-    return db.session.query(Schedule).join(ScheduleUser, 
-        Schedule.id == ScheduleUser.scheduleId).filter(
-        ScheduleUser.userId == userId, 
-        ScheduleUser.useState == Constant.USE_STATE_YES,
-        Schedule.planDate > currentTime).order_by(Schedule.planDate).all()
 
-def getPastSchedulesOfUser(userId, currentTime):
+def getFutureSchedulesOfUser(user_id, current_time):
     return db.session.query(Schedule).join(ScheduleUser, 
-        Schedule.id == ScheduleUser.scheduleId).filter(
-        ScheduleUser.userId == userId, 
-        ScheduleUser.useState == Constant.USE_STATE_YES,
-        Schedule.planDate <= currentTime).order_by(Schedule.planDate.desc()).all()
+        Schedule.id == ScheduleUser.schedule_id).filter(
+        ScheduleUser.user_id == user_id, 
+        ScheduleUser.use_state == Constant.USE_STATE_YES,
+        Schedule.plan_date > current_time).order_by(Schedule.plan_date).all()
+
+
+def getPastSchedulesOfUser(user_id, current_time):
+    return db.session.query(Schedule).join(ScheduleUser, 
+        Schedule.id == ScheduleUser.schedule_id).filter(
+        ScheduleUser.user_id == user_id, 
+        ScheduleUser.use_state == Constant.USE_STATE_YES,
+        Schedule.plan_date <= current_time).order_by(Schedule.plan_date.desc()).all()
