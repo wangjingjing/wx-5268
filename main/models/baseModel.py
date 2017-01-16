@@ -17,11 +17,24 @@ class BaseModel(db.Model):
     }
 
     id = db.Column(db.String(32), name='ID', default=uuid.uuid1(), primary_key=True, nullable=False)
-    use_state = db.Column(db.String(1), name='USE_STATE', 
-        default=Constant.USE_STATE_YES, nullable=False)
-    create_date = db.Column(db.DateTime, name='CREATE_DATE', default=datetime.now) 
-    create_user_id = db.Column(db.String(32), name='CREATE_USER_ID')
-    create_user_name = db.Column(db.String(32), name='CREATE_USER_NAME')
-    update_date = db.Column(db.DateTime, name='UPDATE_DATE')
-    update_user_id = db.Column(db.String(32), name='UPDATE_USER_ID')
-    update_user_name = db.Column(db.String(32), name='UPDATE_USER_NAME')
+    use_state = db.Column(db.String(1), default=Constant.USE_STATE_YES, nullable=False)
+    create_date = db.Column(db.DateTime, default=datetime.now) 
+    create_user_id = db.Column(db.String(32))
+    create_user_name = db.Column(db.String(32))
+    update_date = db.Column(db.DateTime)
+    update_user_id = db.Column(db.String(32))
+    update_user_name = db.Column(db.String(32))
+
+    @property
+    def columns(self):
+        return [column.name for column in self.__table__.columns]
+ 
+    @property
+    def columnitems(self):
+        return dict([(column, getattr(self, column)) for column in self.columns])
+ 
+    def __repr__(self):
+        return '{}({})'.format(self.__class__.__name__, self.columnitems)
+ 
+    def to_json(self):
+        return self.columnitems

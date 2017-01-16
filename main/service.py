@@ -6,8 +6,8 @@ import json
 from redis import Redis, ConnectionPool
 from . import app
 from .consts import Constant
+from utils.json_util import *
 from models import *
-from models.schedule import Schedule
 
 
 pool = ConnectionPool(host=app.config['REDIS_SERVER'], port=6379)
@@ -24,10 +24,9 @@ def get_available_schedules_of_user(user_id):
 
     schedules = []
     for schedule_id in scheduleids:
-        #schedules.append(get_schedule_by_id(schedule_id))
-        schedules.append(get_object_by_id(Schedule, schedule_id))
+        schedules.append(get_schedule_by_id(schedule_id))
 
-    return sorted(schedules, key = lambda schedule: schedule.plan_date)
+    return sorted(schedules, key = lambda schedule: schedule['plan_date'])
     
 
 def get_groupid_of_user(user_id):
@@ -81,21 +80,25 @@ def get_scheduleid_of_group(group_id):
 
 def get_schedule_by_id(schedule_id):
 
-    cached = redis.hexists(Constant.REDIS_PREFIX_SCHEDULE + schedule_id, 
+    schedule_id_str = str(schedule_id)
+
+    cached = redis.hexists(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
         Constant.REDIS_PREFIX_SCHEDULE_INFO)
 
     if cached:
-        redis_schedule = redis.hget(Constant.REDIS_PREFIX_SCHEDULE + schedule_id, 
+        redis_schedule = redis.hget(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
             Constant.REDIS_PREFIX_SCHEDULE_INFO)
 
-        return json.loads(redis.get(redis_schedule))
+        return json.loads(redis.get(redis_schedule), object_hook=dict_to_object)
 
     else:
         redis_schedule = Constant.REDIS_PREFIX_SCHEDULE_INFO + str(time.time())
 
         schedule_info = get_object_by_id(Schedule, schedule_id)
 
-        # TODO json序列化
-        redis.set(redis_schedule, json.dumps(schedule_info))
+        redis.set(redis_schedule, json.dumps(schedule_info, cls=JsonEncoderUtil))
+
+        redis.hset(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
+            Constant.REDIS_PREFIX_SCHEDULE_INFO, redis_schedule)
 
         return schedule_info

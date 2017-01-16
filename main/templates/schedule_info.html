@@ -1,0 +1,41 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}活动信息{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ config.WEUI_URI }}" />
+<style type="text/css">
+    body,html {
+        height:100%;
+        -webkit-tap-highlight-color:transparent
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="weui-article">
+    <h1>{{schedule.title}}</h1>
+    <section>
+        <h2 class="title">
+            {% if schedule.type == '1'%}
+                VS. {{schedule.opponent_name}}
+            {% endif %}
+        </h2>
+        <section>
+            <h3>{{schedule.plan_date}}&nbsp;{{schedule.address_name}}</h3>
+            <p>{{schedule.remark}}</p>
+        </section>
+    </section>
+</article>
+
+<div class="weui-footer weui-footer_fixed-bottom">
+    <p class="weui-footer__text">Copyright &copy; 2008-2017 5268FC</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript">
+    
+</script>
+{% endblock %}

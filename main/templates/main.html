@@ -102,5 +102,9 @@
         
         $panel.load('{{ url_for('get_available_schedule') }}');
     }
+
+    function goToScheduleInfo(url) {
+        window.location.href = url;
+    }
 </script>
 {% endblock %}

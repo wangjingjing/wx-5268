@@ -12,11 +12,11 @@ class Schedule(BaseModel):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     title = db.Column(db.String(64))
     type = db.Column(db.String(1), nullable=False)
-    plan_date = db.Column(db.String(16), name='PLAN_DATE')
-    address_id = db.Column(db.String(32), name='ADDRESS_ID')
-    address_name = db.Column(db.String(64), name='ADDRESS_NAME')
-    opponent_id = db.Column(db.String(32), name='OPPONENT_ID')
-    opponet_name = db.Column(db.String(64), name='OPPONENT_NAME')
+    plan_date = db.Column(db.String(16))
+    address_id = db.Column(db.String(32))
+    address_name = db.Column(db.String(64))
+    opponent_id = db.Column(db.String(32))
+    opponent_name = db.Column(db.String(64))
     remark = db.Column(db.Text)
 
     def __init__(self, type, plan_date=None, address_id=None, 
@@ -26,9 +26,6 @@ class Schedule(BaseModel):
         self.address_id = address_id
         self.opponent_id = opponent_id
         self.remark = remark
-
-    def __repr__(self):
-        return 'Schedule<ID %d>' % self.id
 
     def save(self):
         db.session.add(self)

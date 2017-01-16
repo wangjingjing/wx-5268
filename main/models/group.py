@@ -14,9 +14,6 @@ class Group(BaseModel):
     def __init__(self, name):
         self.name = name
 
-    def __repr__(self):
-        return 'Group<name %r>' % self.name
-
     def save(self):
         db.session.add(self)
         db.session.commit()

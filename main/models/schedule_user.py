@@ -11,15 +11,12 @@ class ScheduleUser(BaseModel):
     
     __tablename__ = 'SCHEDULE_USER'
 
-    schedule_d = db.Column(db.String(32), name='SCHEDULE_ID', nullable=False)
-    user_d = db.Column(db.String(32), name='USER_ID', nullable=False)
+    schedule_d = db.Column(db.String(32), nullable=False)
+    user_d = db.Column(db.String(32), nullable=False)
 
     def __init__(self, schedule_id, user_id):
         self.schedule_id = schedule_id
         self.user_id = user_id
-
-    def __repr__(self):
-        return 'ScheduleUser<ID %r>' % self.id
 
     def save(self):
         db.session.add(self)

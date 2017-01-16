@@ -11,15 +11,12 @@ class GroupUser(BaseModel):
     
     __tablename__ = 'GROUP_USER'
 
-    group_id = db.Column(db.String(32), name='GROUP_ID', nullable=False)
-    user_id = db.Column(db.String(32), name='USER_ID', nullable=False)
+    group_id = db.Column(db.String(32), nullable=False)
+    user_id = db.Column(db.String(32), nullable=False)
 
     def __init__(self, group_id, user_id):
         self.group_id = group_id
         self.user_id = user_id
-
-    def __repr__(self):
-        return 'GroupUser<ID %r>' % self.id
 
     def save(self):
         db.session.add(self)

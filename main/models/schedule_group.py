@@ -11,15 +11,12 @@ class ScheduleGroup(BaseModel):
     
     __tablename__ = 'SCHEDULE_GROUP'
 
-    schedule_id = db.Column(db.String(32), name='SCHEDULE_ID', nullable=False)
-    group_id = db.Column(db.String(32), name='GROUP_ID', nullable=False)
+    schedule_id = db.Column(db.String(32), nullable=False)
+    group_id = db.Column(db.String(32), nullable=False)
 
     def __init__(self, schedule_id, group_id):
         self.schedule_id = schedule_id
         self.group_id = group_id
-
-    def __repr__(self):
-        return 'ScheduleGroup<ID %r>' % self.id
 
     def save(self):
         db.session.add(self)
