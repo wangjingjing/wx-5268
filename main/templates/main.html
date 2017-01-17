@@ -15,34 +15,10 @@
 {% block content %}
 <div class="weui-tab" style="height: 100%;">
     <div class="weui-tab__panel" id="panelContent">
-        <div class="weui-panel">
-            <div class="weui-panel__hd">文字列表附来源</div>
-            <div class="weui-panel__bd">
-                <div class="weui-media-box weui-media-box_text">
-                    <h4 class="weui-media-box__title">标题一</h4>
-                    <p class="weui-media-box__desc">由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。</p>
-                    <ul class="weui-media-box__info">
-                        <li class="weui-media-box__info__meta">文字来源</li>
-                        <li class="weui-media-box__info__meta">时间</li>
-                        <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">其它信息</li>
-                    </ul>
-                </div>
-            </div>
-            <div class="weui-panel__bd">
-                <div class="weui-media-box weui-media-box_text">
-                    <h4 class="weui-media-box__title">标题一</h4>
-                    <p class="weui-media-box__desc">由各种物质组成的巨型球状天体，叫做星球。星球有一定的形状，有自己的运行轨道。</p>
-                    <ul class="weui-media-box__info">
-                        <li class="weui-media-box__info__meta">文字来源</li>
-                        <li class="weui-media-box__info__meta">时间</li>
-                        <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">其它信息</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+
     </div>
     <div class="weui-tabbar">
-        <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on">
+        <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on" onclick="listApplied()" id="default_tab">
             <img srcName="all" src="../static/images/all_on.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">来战</p>
         </a>
@@ -67,6 +43,8 @@
 <script type="text/javascript">
     
     $(function(){
+
+        $('#default_tab').click();
 
         $('.weui-tabbar__item').on('click', function () {
 
@@ -95,12 +73,20 @@
         return html.join('');
     }
 
+    function listApplied() {
+        var $panel = $('#panelContent');
+        var padding = ($(window).height() - $('.weui-tabbar').height()) / 2;
+        $panel.html(getLoadingHtml(padding));
+        
+        $panel.load('{{ url_for('get_applied_schedules') }}');
+    }
+
     function listAvailable() {
         var $panel = $('#panelContent');
         var padding = ($(window).height() - $('.weui-tabbar').height()) / 2;
         $panel.html(getLoadingHtml(padding));
         
-        $panel.load('{{ url_for('get_available_schedule') }}');
+        $panel.load('{{ url_for('get_available_schedules') }}');
     }
 
     function goToScheduleInfo(url) {

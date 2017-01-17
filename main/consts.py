@@ -10,6 +10,8 @@ class Constant():
 
     REDIS_PREFIX_USER = 'user:'
     REDIS_PREFIX_USER_GROUPSET = 'groupset_'
+    REDIS_PREFIX_USER_APPLYZSET = 'applyzset_'
+    REDIS_PREFIX_USER_ATTENDZSET = 'attendzset_'
 
     REDIS_PREFIX_GROUP = 'group:'
     REDIS_PREFIX_GROUP_SCHEDULESET = 'scheduleset_'

@@ -11,8 +11,8 @@ class ScheduleUser(BaseModel):
     
     __tablename__ = 'SCHEDULE_USER'
 
-    schedule_d = db.Column(db.String(32), nullable=False)
-    user_d = db.Column(db.String(32), nullable=False)
+    schedule_id = db.Column(db.String(32), nullable=False)
+    user_id = db.Column(db.String(32), nullable=False)
 
     def __init__(self, schedule_id, user_id):
         self.schedule_id = schedule_id
@@ -28,7 +28,7 @@ class ScheduleUser(BaseModel):
         return self
 
 
-def getFutureSchedulesOfUser(user_id, current_time):
+def get_apply_schedules_of_user(user_id, current_time):
     return db.session.query(Schedule).join(ScheduleUser, 
         Schedule.id == ScheduleUser.schedule_id).filter(
         ScheduleUser.user_id == user_id, 
@@ -36,7 +36,7 @@ def getFutureSchedulesOfUser(user_id, current_time):
         Schedule.plan_date > current_time).order_by(Schedule.plan_date).all()
 
 
-def getPastSchedulesOfUser(user_id, current_time):
+def get_attend_schedules_of_user(user_id, current_time):
     return db.session.query(Schedule).join(ScheduleUser, 
         Schedule.id == ScheduleUser.schedule_id).filter(
         ScheduleUser.user_id == user_id, 

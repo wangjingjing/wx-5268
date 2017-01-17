@@ -7,6 +7,7 @@ from redis import Redis, ConnectionPool
 from . import app
 from .consts import Constant
 from utils.json_util import *
+from utils.date_util import *
 from models import *
 
 
@@ -65,9 +66,8 @@ def get_scheduleid_of_group(group_id):
     else:
         redis_group_schedule = Constant.REDIS_PREFIX_GROUP_SCHEDULESET + str(time.time())
 
-        current_time = time.strftime("%Y-%m-%d %H:%M", time.localtime())
-
-        group_schedules = schedule_group.get_scheduleid_of_group(group_id, current_time)
+        group_schedules = schedule_group.get_scheduleid_of_group(
+            group_id, get_current_time_minute())
 
         for schedule_id, in group_schedules:
             redis.sadd(redis_group_schedule, schedule_id)
@@ -102,3 +102,40 @@ def get_schedule_by_id(schedule_id):
             Constant.REDIS_PREFIX_SCHEDULE_INFO, redis_schedule)
 
         return schedule_info
+
+def get_applied_schedules_of_user(user_id):
+
+    cached = redis.hexists(Constant.REDIS_PREFIX_USER + user_id, 
+        Constant.REDIS_PREFIX_USER_APPLYZSET)
+
+    if cached:
+        redis_user_apply = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
+            Constant.REDIS_PREFIX_USER_APPLYZSET)
+
+        scheduleids = redis.zrange(redis_user_apply, 0, -1)
+
+        schedules = []
+        for schedule_id in scheduleids:
+            schedules.append(get_schedule_by_id(schedule_id))
+
+        return schedules
+
+    else:
+        redis_user_apply = Constant.REDIS_PREFIX_USER_APPLYZSET + str(time.time())
+
+        schedules = schedule_user.get_apply_schedules_of_user(
+            user_id, get_current_time_minute())
+
+        for schedule in schedules:
+            redis.zadd(redis_user_apply, schedule.id, 
+                get_timestamp_float(schedule.plan_date, '%Y-%m-%d %H:%M'))
+
+        redis.hset(Constant.REDIS_PREFIX_USER + user_id, 
+            Constant.REDIS_PREFIX_USER_APPLYZSET, redis_user_apply)
+
+        return schedules
+
+
+def get_attended_schedules_of_user(user_id):
+
+    pass

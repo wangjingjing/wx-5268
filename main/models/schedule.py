@@ -19,6 +19,8 @@ class Schedule(BaseModel):
     opponent_name = db.Column(db.String(64))
     remark = db.Column(db.Text)
 
+    apply_flag = '' # '0' '1'
+
     def __init__(self, type, plan_date=None, address_id=None, 
         opponent_id=None, remark=None):
         self.type = type
