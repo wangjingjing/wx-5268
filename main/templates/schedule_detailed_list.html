@@ -4,12 +4,16 @@
     {% for schedule in schedules%}
 
     <div class="weui-panel__bd">
-        <div class="weui-media-box weui-media-box_text" onclick="goToScheduleInfo('{{url_for('get_schedule_info', schedule_id=schedule.id)}}')">
+        <div class="weui-media-box weui-media-box_text" onclick="goToScheduleInfo('{{url_for('get_schedule_future', schedule_id=schedule.id)}}')">
             <h4 class="weui-media-box__title">
                 {% if schedule.title %}
                     {{schedule.title}}
                 {% elif schedule.type == '1'%}
                     VS. {{schedule.opponent_name}}
+                {% endif %}
+
+                {% if schedule.apply_flag == '1' %}
+                <span class="label label-success">已报名</span>
                 {% endif %}
             </h4>
             <p class="weui-media-box__desc">{{schedule.plan_date}}&nbsp;{{schedule.address_name}}</p>

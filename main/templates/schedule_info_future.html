@@ -1,0 +1,60 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}活动信息{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ config.WEUI_URI }}" />
+<style type="text/css">
+.btn_expand{
+    width: 95%;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="weui-article">
+    <h1>{{schedule.title}}</h1>
+</article>
+<div class="weui-form-preview">
+    {% if schedule.type == '1'%}
+    <div class="weui-form-preview__hd">
+        <label class="weui-form-preview__label">对手</label>
+        <em class="weui-form-preview__value">{{schedule.opponent_name}}</em>
+    </div>
+    {% endif %}
+
+    <div class="weui-form-preview__bd">
+        <p>
+            <label class="weui-form-preview__label">{{schedule.plan_date}}</label>
+            <span class="weui-form-preview__value">&nbsp;</span>
+        </p>
+        <p>
+            <label class="weui-form-preview__label">{{schedule.address_name}}</label>
+            <span class="weui-form-preview__value">&nbsp;</span>
+        </p>
+        <p>
+            <label class="weui-form-preview__label">{{schedule.remark}}</label>
+            <span class="weui-form-preview__value">&nbsp;</span>
+        </p>
+    </div>
+</div>
+
+<div class="button-sp-area" style="padding-top: 5px">
+    {% if schedule.apply_flag == '0' %}
+    <a class="weui-btn weui-btn_primary btn_expand" href="javascript:">报名</a>
+    {% elif schedule.apply_flag == '1'%}
+    <a class="weui-btn weui-btn_warn btn_expand" href="javascript:">取消</a>
+    {% endif %}
+</div>
+
+<div class="weui-footer weui-footer_fixed-bottom">
+    <p class="weui-footer__text">Copyright &copy; 2008-2017 5268FC</p>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script type="text/javascript">
+    
+</script>
+{% endblock %}

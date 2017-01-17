@@ -3,7 +3,9 @@
 
 
 class Constant():
-    """常量类"""
+    '''
+    常量类
+    '''
 
     USE_STATE_YES = '1'
     USE_STATE_NO = '0'
