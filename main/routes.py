@@ -17,10 +17,16 @@ def main():
 @app.route("/user/applied_schedules")
 def get_applied_schedules():
 
-    schedules = service.get_applied_schedules_of_user('12345678901234567890123456789000')
+    schedules = service.get_applied_schedules_of_user('12345678901234567890123456789001')
     return render_template("schedule_detailed_list.html", 
         schedules=schedules, label=u'已报名活动')
 
+@app.route("/user/attended_schedules")
+def get_attended_schedules():
+
+    schedules = service.get_attended_schedules_of_user('12345678901234567890123456789001')
+    return render_template("schedule_detailed_list.html", 
+        schedules=schedules, label=u'已参加活动')
 
 @app.route("/user/available_schedules")
 def get_available_schedules():
@@ -34,6 +40,6 @@ def get_available_schedules():
 def get_schedule_future(schedule_id):
 
     schedule = service.get_future_schedule('12345678901234567890123456789000', schedule_id)
-    
+
     return render_template("schedule_info_future.html", schedule=schedule)
 

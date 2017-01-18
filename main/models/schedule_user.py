@@ -33,12 +33,12 @@ def get_apply_schedules_of_user(user_id, current_time):
         ScheduleUser, Schedule.id == ScheduleUser.schedule_id).filter(
         ScheduleUser.user_id == user_id, 
         ScheduleUser.use_state == Constant.USE_STATE_YES,
-        Schedule.plan_date > current_time).order_by(Schedule.plan_date).all()
+        Schedule.plan_date >= current_time).order_by(Schedule.plan_date).all()
 
 
 def get_attend_schedules_of_user(user_id, current_time):
-    return db.session.query(Schedule).join(ScheduleUser, 
-        Schedule.id == ScheduleUser.schedule_id).filter(
+    return db.session.query(Schedule.id, Schedule.plan_date).join(
+        ScheduleUser, Schedule.id == ScheduleUser.schedule_id).filter(
         ScheduleUser.user_id == user_id, 
         ScheduleUser.use_state == Constant.USE_STATE_YES,
-        Schedule.plan_date <= current_time).order_by(Schedule.plan_date.desc()).all()
+        Schedule.plan_date < current_time).order_by(Schedule.plan_date.desc()).all()

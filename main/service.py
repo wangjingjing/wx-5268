@@ -49,14 +49,11 @@ def get_groupid_of_user(user_id):
     获取用户所在的分组ID集合
     '''
 
-    cached = redis.hexists(Constant.REDIS_PREFIX_USER + user_id, 
+    redis_user_group = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
         Constant.REDIS_PREFIX_USER_GROUPSET)
 
-    if cached:
-        redis_user_group = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
-            Constant.REDIS_PREFIX_USER_GROUPSET)
-
-    else:
+    if redis_user_group is None:
+        
         redis_user_group = Constant.REDIS_PREFIX_USER_GROUPSET + str(time.time())
 
         # sqlalchemy's rerurn value is turple
@@ -76,14 +73,11 @@ def get_scheduleid_of_group(group_id):
     获取指定组可见的活动ID集合
     '''
 
-    cached = redis.hexists(Constant.REDIS_PREFIX_GROUP + group_id, 
+    redis_group_schedule = redis.hget(Constant.REDIS_PREFIX_GROUP + group_id, 
         Constant.REDIS_PREFIX_GROUP_SCHEDULESET)
 
-    if cached:
-        redis_group_schedule = redis.hget(Constant.REDIS_PREFIX_GROUP + group_id, 
-            Constant.REDIS_PREFIX_GROUP_SCHEDULESET)
-
-    else:
+    if redis_group_schedule is None:
+        
         redis_group_schedule = Constant.REDIS_PREFIX_GROUP_SCHEDULESET + str(time.time())
 
         group_schedules = schedule_group.get_scheduleid_of_group(
@@ -105,14 +99,11 @@ def get_schedule_by_id(schedule_id):
 
     schedule_id_str = str(schedule_id)
 
-    cached = redis.hexists(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
+    redis_schedule = redis.hget(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
         Constant.REDIS_PREFIX_SCHEDULE_INFO)
 
-    if cached:
-        redis_schedule = redis.hget(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
-            Constant.REDIS_PREFIX_SCHEDULE_INFO)
-
-    else:
+    if redis_schedule is None:
+        
         redis_schedule = Constant.REDIS_PREFIX_SCHEDULE_INFO + str(time.time())
 
         schedule_info = get_object_by_id(Schedule, schedule_id)
@@ -123,7 +114,7 @@ def get_schedule_by_id(schedule_id):
         redis.hset(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
             Constant.REDIS_PREFIX_SCHEDULE_INFO, redis_schedule)
 
-     # 从缓存中取得活动的json串，返回反序列化的json对象（一个散列）
+    # 从缓存中取得活动的json串，返回反序列化的json对象（一个散列）
     return json.loads(redis.get(redis_schedule), object_hook=dict_to_object)
 
 def get_applied_scheduleids_of_user(user_id):
@@ -131,24 +122,31 @@ def get_applied_scheduleids_of_user(user_id):
     获取用户已报名的活动ID列表
     '''
     
-    cached = redis.hexists(Constant.REDIS_PREFIX_USER + user_id, 
-        Constant.REDIS_PREFIX_USER_APPLYZSET)
-
-    if cached:
-        redis_user_apply = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
+    redis_user_apply = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
             Constant.REDIS_PREFIX_USER_APPLYZSET)
 
-    else:
+    if redis_user_apply is None or not redis.exists(redis_user_apply):
+
         redis_user_apply = Constant.REDIS_PREFIX_USER_APPLYZSET + str(time.time())
 
         schedule_id_date = schedule_user.get_apply_schedules_of_user(
             user_id, get_current_time_minute())
 
-        for schedule_id, plan_date in schedules:
+        if len(schedule_id_date) == 0:
+            return []
+
+        for schedule_id, plan_date in schedule_id_date:
 
             # 用redis的有序集合保存活动ID，分值是活动的预订时间
             redis.zadd(redis_user_apply, schedule_id, 
                 get_timestamp_float(plan_date, '%Y-%m-%d %H:%M'))
+
+        expire_date = schedule_id_date[0][1]
+        # 设置已报名列表的缓存过期时间为第一个活动预订时间的半小时后
+        expire_timestamp = int(get_timestamp_float(expire_date, 
+            '%Y-%m-%d %H:%M')) + 30*60
+
+        redis.expireat(redis_user_apply, expire_timestamp)
 
         redis.hset(Constant.REDIS_PREFIX_USER + user_id, 
             Constant.REDIS_PREFIX_USER_APPLYZSET, redis_user_apply)
