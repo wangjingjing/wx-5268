@@ -17,14 +17,14 @@ def main():
 @app.route("/user/applied_schedules")
 def get_applied_schedules():
 
-    schedules = service.get_applied_schedules_of_user('12345678901234567890123456789001')
+    schedules = service.get_applied_schedules_of_user('12345678901234567890123456789000')
     return render_template("schedule_detailed_list.html", 
         schedules=schedules, label=u'已报名活动')
 
 @app.route("/user/attended_schedules")
 def get_attended_schedules():
 
-    schedules = service.get_attended_schedules_of_user('12345678901234567890123456789001')
+    schedules = service.get_attended_schedules_of_user('12345678901234567890123456789000')
     return render_template("schedule_detailed_list.html", 
         schedules=schedules, label=u'已参加活动')
 

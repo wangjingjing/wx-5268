@@ -18,15 +18,15 @@
 
     </div>
     <div class="weui-tabbar">
-        <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on" onclick="listApplied()" id="default_tab">
+        <a href="javascript:;" class="weui-tabbar__item weui-bar__item_on" onclick="loadPanelHtml('{{ url_for('get_applied_schedules') }}')" id="default_tab">
             <img srcName="all" src="../static/images/all_on.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">来战</p>
         </a>
-        <a href="javascript:;" class="weui-tabbar__item">
+        <a href="javascript:;" class="weui-tabbar__item" onclick="loadPanelHtml('{{ url_for('get_attended_schedules') }}')">
             <img srcName="success" src="../static/images/success.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">战绩</p>
         </a>
-        <a href="javascript:;" class="weui-tabbar__item" onclick="listAvailable()">
+        <a href="javascript:;" class="weui-tabbar__item" onclick="loadPanelHtml('{{ url_for('get_available_schedules') }}')">
             <img srcName="compass" src="../static/images/compass.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">球队</p>
         </a>
@@ -73,20 +73,12 @@
         return html.join('');
     }
 
-    function listApplied() {
+    function loadPanelHtml(url) {
         var $panel = $('#panelContent');
         var padding = ($(window).height() - $('.weui-tabbar').height()) / 2;
         $panel.html(getLoadingHtml(padding));
         
-        $panel.load('{{ url_for('get_applied_schedules') }}');
-    }
-
-    function listAvailable() {
-        var $panel = $('#panelContent');
-        var padding = ($(window).height() - $('.weui-tabbar').height()) / 2;
-        $panel.html(getLoadingHtml(padding));
-        
-        $panel.load('{{ url_for('get_available_schedules') }}');
+        $panel.load(url);
     }
 
     function goToScheduleInfo(url) {

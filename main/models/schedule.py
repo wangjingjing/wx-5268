@@ -19,7 +19,8 @@ class Schedule(BaseModel):
     opponent_name = db.Column(db.String(64))
     remark = db.Column(db.Text)
 
-    apply_flag = '' # '0' '1'
+    apply_flag = '' # '0':未报名 '1':已报名
+    underway_flag = '' # '1':进行中
 
     def __init__(self, type, plan_date=None, address_id=None, 
         opponent_id=None, remark=None):
