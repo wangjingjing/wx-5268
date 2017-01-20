@@ -38,10 +38,9 @@ def get_available_schedules_of_user(user_id):
         if schedule_id in apply_scheduleids:
             schedule['apply_flag'] = '1'
 
-        # 活动在预订时间后的一段时间(DELAY_TIME)内仍然可见
-        if get_timestamp_float_minute(schedule['plan_date']) < time.time():
-            schedule['underway_flag'] = '1'
-
+        # # 活动在预订时间后的一段时间(DELAY_TIME)内仍然可见
+        # if get_timestamp_float_minute(schedule['plan_date']) < time.time():
+        #     schedule['underway_flag'] = '1'
 
         schedules.append(schedule)
 
@@ -57,7 +56,7 @@ def get_groupid_of_user(user_id):
     redis_user_group = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
         Constant.REDIS_PREFIX_USER_GROUPSET)
 
-    if redis_user_group is None:
+    if redis_user_group is None or not redis.exists(redis_user_group):
 
         redis_user_group = Constant.REDIS_PREFIX_USER_GROUPSET + str(time.time())
 
@@ -66,6 +65,9 @@ def get_groupid_of_user(user_id):
 
         for group_id, in user_groupids:
             redis.sadd(redis_user_group, group_id)
+
+        # 设置缓存时间为365天
+        redis.expire(redis_user_group, 365 * 24 * 60 * 60)
 
         redis.hset(Constant.REDIS_PREFIX_USER + user_id, 
             Constant.REDIS_PREFIX_USER_GROUPSET, redis_user_group)
@@ -85,11 +87,7 @@ def get_scheduleid_of_group(group_id):
 
         redis_group_schedule = Constant.REDIS_PREFIX_GROUP_SCHEDULESET + str(time.time())
 
-         # 当前时间的DELAY_TIME时长内视为正在进行的活动
-        current_delay_time = time.time() + app.config['DELAY_TIME']*60
-
-        group_schedules = schedule_group.get_scheduleid_of_group(
-            group_id, get_specific_time_minute(current_delay_time))
+        group_schedules = schedule_group.get_scheduleid_of_group(group_id)
 
         if len(group_schedules) == 0:
             return []
@@ -120,7 +118,7 @@ def get_schedule_by_id(schedule_id):
     redis_schedule = redis.hget(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
         Constant.REDIS_PREFIX_SCHEDULE_INFO)
 
-    if redis_schedule is None:
+    if redis_schedule is None or not redis.exists(redis_schedule):
 
         redis_schedule = Constant.REDIS_PREFIX_SCHEDULE_INFO + str(time.time())
 
@@ -131,6 +129,9 @@ def get_schedule_by_id(schedule_id):
 
         # 将活动对象序列化为json串，保存至redis中
         redis.set(redis_schedule, json.dumps(schedule_info, cls=JsonEncoderUtil))
+
+        # 设置缓存时间为90天
+        redis.expire(redis_schedule, 90 * 24 * 60 * 60)
 
         redis.hset(Constant.REDIS_PREFIX_SCHEDULE + schedule_id_str, 
             Constant.REDIS_PREFIX_SCHEDULE_INFO, redis_schedule)
@@ -151,11 +152,7 @@ def get_applied_scheduleids_of_user(user_id):
 
         redis_user_apply = Constant.REDIS_PREFIX_USER_APPLYZSET + str(time.time())
 
-        # 当前时间的DELAY_TIME时长内视为正在进行的活动
-        current_delay_time = time.time() + app.config['DELAY_TIME']*60
-
-        schedule_id_date = schedule_user.get_apply_schedules_of_user(
-            user_id, get_specific_time_minute(current_delay_time))
+        schedule_id_date = schedule_user.get_apply_schedules_of_user(user_id)
 
         if len(schedule_id_date) == 0:
             return []
@@ -189,13 +186,7 @@ def get_applied_schedules_of_user(user_id):
     # TODO 未来应增加分页查询
     schedules = []
     for schedule_id in scheduleids:
-        schedule = get_schedule_by_id(schedule_id)
-
-        # 活动在预订时间后的一段时间(DELAY_TIME)内标识为正在进行
-        if get_timestamp_float_minute(schedule['plan_date']) < time.time():
-            schedule['underway_flag'] = '1'
-
-        schedules.append(schedule)
+        schedules.append(get_schedule_by_id(schedule_id))
 
     return schedules
 
@@ -225,11 +216,7 @@ def get_attended_scheduleids_of_user(user_id):
 
         redis_user_attend = Constant.REDIS_PREFIX_USER_ATTENDZSET + str(time.time())
 
-        # 当前时间的DELAY_TIME时长内视为正在进行的活动
-        current_delay_time = time.time() + app.config['DELAY_TIME']*60
-
-        schedule_id_date = schedule_user.get_attend_schedules_of_user(
-            user_id, get_specific_time_minute(current_delay_time))
+        schedule_id_date = schedule_user.get_attend_schedules_of_user(user_id)
 
         if len(schedule_id_date) == 0:
             return []
@@ -266,3 +253,63 @@ def get_attended_schedules_of_user(user_id):
         schedules.append(get_schedule_by_id(schedule_id))
 
     return schedules
+
+
+def apply_schedule(schedule_id, user_id):
+    '''
+    报名活动
+    '''
+
+    schedule = get_schedule_by_id(schedule_id)
+
+    # 不能报名已结束(status为‘2’)的活动
+    if schedule['status'] == '2':
+        return
+
+    schedule_user = ScheduleUser(schedule_id, user_id)
+    schedule_user.save()
+
+    redis_user_apply = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
+        Constant.REDIS_PREFIX_USER_APPLYZSET)
+
+    if redis_user_apply is None or not redis.exists(redis_user_apply):
+
+        redis_user_apply = Constant.REDIS_PREFIX_USER_APPLYZSET + str(time.time())
+
+    # TODO 加redis事务
+
+    # 将新报名的活动ID添加到用户已报名集合中
+    redis.zadd(redis_user_apply, schedule_id, 
+        get_timestamp_float_minute(schedule['plan_date']))
+
+    id, plan_date = redis.zrange(redis_user_apply, 0, 1, withscores=True)
+
+    # 如果新报名活动的预计时间是已报名集合中最近的，
+    # 则将新报名活动的预计时间（加延长时间）设为缓存过期时间
+    if(cmp(schedule['plan_date'], plan_date) <= 0):
+        expire_timestamp = int(get_timestamp_float_minute(schedule['plan_date']
+            )) + app.config['DELAY_TIME']*60
+        redis.expireat(redis_user_apply, expire_timestamp)
+
+
+def cancel_schedule(schedule_id, user_id):
+    '''
+    取消报名
+    '''
+
+    schedule = get_schedule_by_id(schedule_id)
+
+    # status不为‘0’的不能取消
+    if(schedule['status'] != '0'):
+        return schedule['status']
+
+    schedule_user = get_active_schedule_user(schedule_id, user_id)
+    schedule_user.use_state = Constant.USE_STATE_NO
+    schedule_user.update()
+
+    redis_user_apply = redis.hget(Constant.REDIS_PREFIX_USER + user_id, 
+        Constant.REDIS_PREFIX_USER_APPLYZSET)
+
+    redis.zrem(redis_user_apply, schedule_id, 
+        get_timestamp_float_minute(schedule['plan_date']))
+

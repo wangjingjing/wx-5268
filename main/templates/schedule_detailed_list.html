@@ -15,8 +15,10 @@
                 {% if schedule.apply_flag == '1' %}
                 <span class="label label-success">已报名</span>
                 {% endif %}
-                {% if schedule.underway_flag == '1' %}
+                {% if schedule.status == '1' %}
                 <span class="label label-primary">进行中</span>
+                {% elif schedule.status == '3' %}
+                <span class="label label-warning">即将开始</span>
                 {% endif %}
             </h4>
             <p class="weui-media-box__desc">{{schedule.plan_date}}&nbsp;{{schedule.address_name}}</p>

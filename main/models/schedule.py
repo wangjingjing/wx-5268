@@ -3,6 +3,7 @@
 
 from . import db
 from .baseModel import BaseModel
+from ..consts import Constant
 
 
 class Schedule(BaseModel):
@@ -18,9 +19,9 @@ class Schedule(BaseModel):
     opponent_id = db.Column(db.String(32))
     opponent_name = db.Column(db.String(64))
     remark = db.Column(db.Text)
+    status = db.COlumn(db.String(1), default=Constant.SCHEDULE_STATUS_DEFAULT)
 
     apply_flag = '' # '0':未报名 '1':已报名
-    underway_flag = '' # '1':进行中
 
     def __init__(self, type, plan_date=None, address_id=None, 
         opponent_id=None, remark=None):
@@ -36,5 +37,10 @@ class Schedule(BaseModel):
         return self
 
     def update(self):
+        db.session.commit()
+        return self
+
+    def selectUpdate(self):
+        db.session.merge(self)
         db.session.commit()
         return self

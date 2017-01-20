@@ -28,9 +28,9 @@ class ScheduleGroup(BaseModel):
         return self
 
 
-def get_scheduleid_of_group(group_id, current_time):
+def get_scheduleid_of_group(group_id):
     return db.session.query(Schedule.id, Schedule.plan_date).join(
         ScheduleGroup,  Schedule.id == ScheduleGroup.schedule_id).filter(
         ScheduleGroup.group_id == group_id,
         ScheduleGroup.use_state == Constant.USE_STATE_YES,
-        Schedule.plan_date > current_time).order_by(Schedule.plan_date).all()
+        Schedule.status != Constant.SCHEDULE_STATUS_OFF).order_by(Schedule.plan_date).all()

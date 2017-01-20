@@ -41,9 +41,9 @@
 
 <div class="button-sp-area" style="padding-top: 5px">
     {% if schedule.apply_flag == '0' %}
-    <a class="weui-btn weui-btn_primary btn_expand" href="javascript:">报名</a>
+    <a class="weui-btn weui-btn_primary btn_expand" href="{{url_for('apply_schedule', schedule_id=schedule.id)}}">报名</a>
     {% elif schedule.apply_flag == '1'%}
-    <a class="weui-btn weui-btn_warn btn_expand" href="javascript:">取消</a>
+    <a class="weui-btn weui-btn_warn btn_expand" href="{{url_for('cancel_schedule', schedule_id=schedule.id)}}">取消</a>
     {% endif %}
 </div>
 
@@ -52,9 +52,3 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-{{ super() }}
-<script type="text/javascript">
-    
-</script>
-{% endblock %}

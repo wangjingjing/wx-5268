@@ -19,3 +19,9 @@ from .user import User
 
 def get_object_by_id(clazz, id):
     return db.session.query(clazz).filter(clazz.id == id).one()
+
+def get_active_schedule_user(schedule_id, user_id):
+    return db.session.query(ScheduleUser).filter(
+        ScheduleUser.schedule_id == schedule_id,
+        ScheduleUser.user_id == user_id, 
+        ScheduleUser.use_state == Constant.USE_STATE_YES).one()
