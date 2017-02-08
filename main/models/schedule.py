@@ -10,7 +10,7 @@ class Schedule(BaseModel):
     
     __tablename__ = 'SCHEDULE'
 
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))
     type = db.Column(db.String(1), nullable=False)
     plan_date = db.Column(db.String(16))
@@ -19,12 +19,13 @@ class Schedule(BaseModel):
     opponent_id = db.Column(db.String(32))
     opponent_name = db.Column(db.String(64))
     remark = db.Column(db.Text)
-    status = db.COlumn(db.String(1), default=Constant.SCHEDULE_STATUS_DEFAULT)
+    status = db.Column(db.String(1), default=Constant.SCHEDULE_STATUS_DEFAULT)
 
     apply_flag = '' # '0':未报名 '1':已报名
 
-    def __init__(self, type, plan_date=None, address_id=None, 
+    def __init__(self, id, type=None, plan_date=None, address_id=None, 
         opponent_id=None, remark=None):
+        self.id = id
         self.type = type
         self.plan_date = plan_date
         self.address_id = address_id

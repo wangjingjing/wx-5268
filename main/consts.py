@@ -6,6 +6,7 @@ class Constant():
     '''
     常量类
     '''
+    SCHEDULE_ID_INCREMENT = 'schedule_id_incr'
 
     USE_STATE_YES = '1'
     USE_STATE_NO = '0'
