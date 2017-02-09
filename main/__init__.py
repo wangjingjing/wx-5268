@@ -5,6 +5,7 @@ from flask import Flask
 from flask_bootstrap import Bootstrap
 import logging
 from logging.handlers import RotatingFileHandler
+from redis import Redis, ConnectionPool
 
 
 app = Flask(__name__, instance_relative_config=True)
@@ -23,6 +24,10 @@ handler.setFormatter(logging.Formatter(
 ))
 handler.setLevel(logging.WARNING)
 app.logger.addHandler(handler)
+
+# redis
+pool = ConnectionPool(host=app.config['REDIS_SERVER'], port=6379)
+redis = Redis(connection_pool=pool)
 
 # 路由
 from .routes import *

@@ -4,7 +4,7 @@
 from flask import render_template, request
 from . import app
 import time
-import service
+import user_service, team_service
 from utils.date_util import *
 from models import Schedule
 
@@ -20,21 +20,21 @@ def main():
 @app.route('/user/applied-schedules')
 def get_applied_schedules():
 
-    schedules = service.get_applied_schedules_of_user('12345678901234567890123456789000')
+    schedules = user_service.get_applied_schedules_of_user('12345678901234567890123456789000')
     return render_template('schedule_detailed_list.html', 
         schedules=schedules, label=u'已报名活动')
 
 @app.route('/user/attended-schedules')
 def get_attended_schedules():
 
-    schedules = service.get_attended_schedules_of_user('12345678901234567890123456789000')
+    schedules = user_service.get_attended_schedules_of_user('12345678901234567890123456789000')
     return render_template('schedule_detailed_list.html', 
         schedules=schedules, label=u'已参加活动')
 
 @app.route('/user/available-schedules')
 def get_available_schedules():
 
-    schedules = service.get_available_schedules_of_user('12345678901234567890123456789000')
+    schedules = user_service.get_available_schedules_of_user('12345678901234567890123456789000')
     return render_template('schedule_detailed_list.html', 
         schedules=schedules, label=u'球队活动')
 
@@ -42,7 +42,7 @@ def get_available_schedules():
 @app.route('/user/future-schedule/<int:schedule_id>')
 def get_schedule_future(schedule_id):
 
-    schedule = service.get_future_schedule('12345678901234567890123456789000', schedule_id)
+    schedule = user_service.get_future_schedule('12345678901234567890123456789000', schedule_id)
 
     return render_template('schedule_info_future.html', schedule=schedule)
 
@@ -50,7 +50,7 @@ def get_schedule_future(schedule_id):
 @app.route('/user/applied-schedule/<int:schedule_id>')
 def apply_schedule(schedule_id):
 
-    service.apply_schedule(schedule_id, '12345678901234567890123456789000')
+    user_service.apply_schedule(schedule_id, '12345678901234567890123456789000')
 
     success_msg = u'您已报名编号' + str(schedule_id) + u'的活动'
     return render_template('success.html', success_msg=success_msg)
@@ -59,7 +59,7 @@ def apply_schedule(schedule_id):
 @app.route('/user/cancel-schedule/<int:schedule_id>')
 def cancel_schedule(schedule_id):
 
-    schedule_status = service.cancel_schedule(schedule_id, '12345678901234567890123456789000')
+    schedule_status = user_service.cancel_schedule(schedule_id, '12345678901234567890123456789000')
 
     if schedule_status is None:
         success_msg = u'您已取消编号' + str(schedule_id) + u'的活动'
@@ -100,9 +100,9 @@ def save_team_schedule():
     id = request.form['id']
 
     if id:
-        schedule = service.get_schedule_by_id(id)
+        schedule = user_service.get_schedule_by_id(id)
     else:
-        schedule_id = service.get_next_schedule_id()
+        schedule_id = team_service.get_next_schedule_id()
         schedule = Schedule(schedule_id)
     
     schedule.plan_date = request.form['schedule_date']
@@ -121,7 +121,7 @@ def save_team_schedule():
 
     app.logger.debug(schedule)
 
-    service.save_schedule_info(schedule)
+    team_service.save_schedule_info(schedule)
     
     success_msg = u'编号'
     return render_template('success.html', success_msg=success_msg)
