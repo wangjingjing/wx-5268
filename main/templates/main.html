@@ -30,7 +30,7 @@
             <img srcName="compass" src="../static/images/compass.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">球队</p>
         </a>
-        <a href="javascript:;" class="weui-tabbar__item">
+        <a href="javascript:;" class="weui-tabbar__item" onclick="loadPanelHtml('{{ url_for('get_userinfo') }}')">
             <img srcName="account" src="../static/images/account.png" alt="" class="weui-tabbar__icon">
             <p class="weui-tabbar__label">我</p>
         </a>

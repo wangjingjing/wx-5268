@@ -1,0 +1,213 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}新活动{% endblock %}
+
+{% block styles %}
+{{ super() }}
+<link rel="stylesheet" href="{{ config.WEUI_URI }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='datetimepicker/css/bootstrap-datetimepicker.min.css') }}" />
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form id="schedule_info_form" action="{{url_for('save_team_schedule')}}" method="post">
+        
+        <div class="weui-cells weui-cells_radio">
+            <label class="weui-cell weui-check__label" for="x11">
+                <div class="weui-cell__bd">
+                    <p>对外比赛</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <input type="radio" name="schedule_type" class="weui-check" id="x11" value="1" onclick="type_match();">
+                    <span class="weui-icon-checked"></span>
+                </div>
+            </label>
+            <label class="weui-cell weui-check__label" for="x12">
+                <div class="weui-cell__bd">
+                    <p>队内训练</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <input type="radio" name="schedule_type" class="weui-check" checked="checked" id="x12" value="2" onclick="type_train();">
+                    <span class="weui-icon-checked"></span>
+                </div>
+            </label>
+            <label class="weui-cell weui-check__label" for="x13">
+                <div class="weui-cell__bd">
+                    <p>娱乐活动</p>
+                </div>
+                <div class="weui-cell__ft">
+                    <input type="radio" name="schedule_type" class="weui-check" id="x13" value="3" onclick="type_train();">
+                    <span class="weui-icon-checked"></span>
+                </div>
+            </label>
+        </div>
+
+        <div class="weui-cells weui-cells_form">
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label for="" class="weui-label">时间</label></div>
+                <div class="weui-cell__bd">
+                    <div class="input-append date" data-date="">
+                        <input class="weui-input span2" type="text" value="" name="schedule_date" id="schedule_date" style="width: 90%">
+                        <span class="add-on" id="clear_time"><i class="glyphicon glyphicon-remove"></i></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label for="" class="weui-label">地点</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="" name="schedule_addr" id="schedule_addr"/>
+                    <input type="hidden" name="schedule_addr_id">
+                </div>
+            </div>
+
+            <div class="weui-cell" id="div_title">
+                <div class="weui-cell__hd"><label for="" class="weui-label">主题</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="" name="schedule_title" id="schedule_title" />
+                </div>
+            </div>
+
+            <div class="weui-cell" id="div_opp">
+                <div class="weui-cell__hd"><label for="" class="weui-label">对手</label></div>
+                <div class="weui-cell__bd">
+                    <input class="weui-input" type="text" placeholder="" name="schedule_opp" id="schedule_opp"/>
+                    <input type="hidden" name="schedule_opp_id" id="schedule_opp_id">
+                </div>
+            </div>
+
+            <div class="weui-cell">
+                <div class="weui-cell__hd"><label for="" class="weui-label">备注</label></div>
+                <div class="weui-cell__bd">
+                    <textarea class="weui-textarea" placeholder="请输入文本" rows="3" name="schedule_remark"></textarea>
+                    <div class="weui-textarea-counter"><span>0</span>/200</div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="button-sp-area" style="padding-top: 5px">
+            <a class="weui-btn weui-btn_primary btn_expand" href="javascript:;" onclick="submit_form();">保存</a>
+        </div>
+
+        <input type="hidden" name="id" value="{{schedule.id}}">
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
+<script src="{{ url_for('static', filename='datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>
+
+<script type="text/javascript">
+    
+    $(function(){
+        $(':radio[name="schedule_type"]').each(function(){
+            if($(this).prop('checked')) {
+                $(this).click();
+            }
+        });
+
+        $('#schedule_date').datetimepicker({
+            bootcssVer: 3,
+            format: 'yyyy-mm-dd hh:ii',
+            autoclose: true,
+            todayBtn: true,
+            minuteStep: 15,
+            language: 'zh-CN',
+            startDate: '{{min_time}}'
+        });
+
+        $('#clear_time').click(function(){
+            $('#schedule_date').val('');
+        });
+    });
+
+    function submit_form() {
+
+        var form_valid = true;
+
+        $('.weui-cells_form>.weui-cell_warn').each(function(){
+            $(this).removeClass('weui-cell_warn');
+            $(this).children('.weui-cell__ft').remove();
+        });
+
+        var $schedule_date = $('#schedule_date');
+        var schedule_date = $.trim($schedule_date.val());
+        $schedule_date.val(schedule_date);
+        if(schedule_date === '') {
+            set_warn_class($schedule_date);
+            form_valid = false;
+        }
+
+        var $schedule_addr = $('#schedule_addr');
+        var schedule_addr = $.trim($schedule_addr.val());
+        $schedule_addr.val(schedule_addr);
+        if(schedule_addr === '') {
+            set_warn_class($schedule_addr);
+            form_valid = false;
+        }
+
+        var schedule_type;
+        $(':radio[name="schedule_type"]').each(function(){
+            if($(this).prop('checked')) {
+                schedule_type = $(this).val();
+            }
+        });
+
+        if(schedule_type === '1') {
+            var $schedule_opp = $('#schedule_opp');
+            var schedule_opp = $.trim($schedule_opp.val());
+            $schedule_opp.val(schedule_opp);
+            if(schedule_opp === '') {
+                set_warn_class($schedule_opp);
+                form_valid = false;
+            }
+
+        }else if(schedule_type === '2' || schedule_type === '3') {
+            var $schedule_title = $('#schedule_title');
+            var schedule_title = $.trim($schedule_title.val());
+            $schedule_title.val(schedule_title);
+            if(schedule_title === '') {
+                set_warn_class($schedule_title);
+                form_valid = false;
+            }
+        }
+        
+        if(form_valid) {
+            document.getElementById('schedule_info_form').submit();
+        }else{
+            return false;
+        }
+    }
+
+    function set_warn_class($input) {
+
+        $parent_div = $input.parents('div.weui-cell');
+        $parent_div.addClass('weui-cell_warn');
+        $parent_div.append('<div class="weui-cell__ft"><i class="weui-icon-warn"></i></div>');
+    }
+
+    function type_match() {
+
+        $('#div_title').hide();
+        $('#schedule_title').attr('disabled', true);
+
+        $('#div_opp').show();
+        $('#schedule_opp').attr('disabled', false);
+        $('#schedule_opp_id').attr('disabled', false);
+    }
+
+    function type_train() {
+
+        $('#div_opp').hide();
+        $('#schedule_opp').attr('disabled', true);
+        $('#schedule_opp_id').attr('disabled', true);
+
+        $('#div_title').show();
+        $('#schedule_title').attr('disabled', false);
+    }
+
+</script>
+{% endblock %}

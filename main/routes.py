@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import render_template
+from flask import render_template, request
 from . import app
+import time
 import service
+from utils.date_util import *
+from models import Schedule
 
 
 @app.route('/')
@@ -69,3 +72,57 @@ def cancel_schedule(schedule_id):
         error_msg = u'编号' + str(schedule_id) + u'的活动即将开始，不能取消报名'
         
     return render_template('error.html', error_msg=error_msg)
+
+
+@app.route('/user-info')
+def get_userinfo():
+
+    return render_template('userinfo.html')
+
+
+@app.route('/team/schedule/list')
+def get_team_schedules():
+
+    return render_template('team_schedule_list.html')
+
+
+@app.route('/team/schedule/new')
+def new_team_schedule():
+
+    min_stamp = time.time() + + app.config['DELAY_TIME']*60
+    min_time = get_specific_time_minute(min_stamp)
+    return render_template('team_schedule_save.html', schedule=None, min_time=min_time)
+
+
+@app.route('/team/schedule/save', methods=['GET', 'POST'])
+def save_team_schedule():
+
+    id = request.form['id']
+
+    if id:
+        schedule = service.get_schedule_by_id(id)
+    else:
+        schedule_id = service.get_next_schedule_id()
+        schedule = Schedule(schedule_id)
+    
+    schedule.plan_date = request.form['schedule_date']
+
+    schedule.address_id = request.form['schedule_addr_id']
+    schedule.address_name = request.form['schedule_addr']
+
+    schedule.type = request.form['schedule_type']
+
+    schedule.title = request.form.get('schedule_title')
+
+    schedule.opponent_id = request.form.get('schedule_opp_id')
+    schedule.opponent_name = request.form.get('schedule_opp')
+
+    schedule.remark = request.form['schedule_remark']
+
+    app.logger.debug(schedule)
+
+    service.save_schedule_info(schedule)
+    
+    success_msg = u'编号'
+    return render_template('success.html', success_msg=success_msg)
+
