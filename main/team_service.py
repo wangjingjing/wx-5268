@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from . import redis
+from . import app, redis
 from .consts import Constant
+from utils import hanzi_util
+from models import *
 
 
 def get_next_schedule_id():
@@ -20,4 +22,51 @@ def get_next_schedule_id():
 
 
 def save_schedule_info(schedule):
-    pass
+    '''
+
+    '''
+
+    try:
+        if schedule.address_id:
+            schedule.address_name = get_address_name(schedule.address_id)
+
+        else:
+            address_id = add_address_info(schedule.address_name)
+            schedule.address_id = address_id
+
+        db.session.add(schedule)
+
+        db.session.commit()
+
+    except:
+        db.session.rollback()
+        raise
+
+
+def add_address_info(addr_name):
+    '''
+    '''
+
+    address = Address(addr_name)
+    db.session.add(address)
+    db.session.flush()
+
+    create_address_name_index(addr_name, address.id)
+    
+    return address.id
+
+
+def create_address_name_index(addr_name, addr_id):
+    '''
+    '''
+
+    hanzi_set = hanzi_util.tokenize(addr_name)
+
+    pipeline = redis.pipeline(True)
+    for hanzi in hanzi_set:
+        pipeline.sadd(Constant.ALL_ADDRESS_NAME_HANZI, 
+            Constant.REDIS_PREFIX_ADDRESSNAME_HANZI + hanzi)
+        pipeline.sadd(Constant.REDIS_PREFIX_ADDRESSNAME_HANZI + hanzi, 
+            addr_id)
+
+    pipeline.execute()

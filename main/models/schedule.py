@@ -8,7 +8,7 @@ from ..consts import Constant
 
 class Schedule(BaseModel):
     
-    __tablename__ = 'SCHEDULE'
+    __tablename__ = 'SCHEDULE_INFO'
 
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(64))

@@ -6,7 +6,6 @@ class Constant():
     '''
     常量类
     '''
-    SCHEDULE_ID_INCREMENT = 'schedule_id_incr'
 
     USE_STATE_YES = '1'
     USE_STATE_NO = '0'
@@ -26,3 +25,9 @@ class Constant():
 
     REDIS_PREFIX_SCHEDULE = 'schedule:'
     REDIS_PREFIX_SCHEDULE_INFO = 'scheduleinfo_'
+
+    SCHEDULE_ID_INCREMENT = 'schedule_id_incr'
+
+    ALL_ADDRESS_ID_NAME = 'all_addr_id_name'
+    ALL_ADDRESS_NAME_HANZI = 'all_addr_name_hanzi'
+    REDIS_PREFIX_ADDRESSNAME_HANZI = 'addr_name:'

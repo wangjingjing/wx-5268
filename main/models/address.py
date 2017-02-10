@@ -5,11 +5,12 @@ from . import db
 from .baseModel import BaseModel
 
 
-class Group(BaseModel):
+class Address(BaseModel):
     
-    __tablename__ = 'GROUP_INFO'
+    __tablename__ = 'ADDRESS_INFO'
 
-    name = db.Column(db.String(32), nullable=False)
+    name = db.Column(db.String(64), nullable=False)
+    full_address = db.Column(db.Text)
 
     def __init__(self, name):
         self.name = name
