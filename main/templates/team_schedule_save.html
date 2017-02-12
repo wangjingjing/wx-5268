@@ -56,7 +56,7 @@
             <div class="weui-cell">
                 <div class="weui-cell__hd"><label for="" class="weui-label">地点</label></div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="text" placeholder="" name="schedule_addr" id="schedule_addr"/>
+                    <input class="weui-input" type="text" placeholder="" name="schedule_addr" id="schedule_addr" autocomplete="off" />
                     <input type="hidden" name="schedule_addr_id">
                 </div>
             </div>
@@ -85,9 +85,33 @@
             </div>
 
         </div>
+
+        <div class="weui-cells__title">对谁可见</div>
+        <div class="weui-cells weui-cells_checkbox">
+
+            {% for gid, gname in group_id_name.iteritems() %}
+            <label class="weui-cell weui-check__label" for="{{gid}}">
+                <div class="weui-cell__hd">
+                    <input type="checkbox" class="weui-check" name="group_id" id="{{gid}}" value="{{gid}}">
+                    <i class="weui-icon-checked"></i>
+                </div>
+                <div class="weui-cell__bd">
+                    <p>{{gname.decode('utf-8')}}</p>
+                </div>
+            </label>
+            {% endfor %}
+        </div>
         
         <div class="button-sp-area" style="padding-top: 5px">
             <a class="weui-btn weui-btn_primary btn_expand" href="javascript:;" onclick="submit_form();">保存</a>
+        </div>
+
+        <div id="toast" style="display: none;">
+            <div class="weui-mask_transparent"></div>
+            <div class="weui-toast">
+                <i class="weui-icon-warn weui-icon_toast"></i>
+                <p class="weui-toast__content">未选择可见</p>
+            </div>
         </div>
 
         <input type="hidden" name="id" value="{{schedule.id}}">
@@ -173,6 +197,20 @@
                 set_warn_class($schedule_title);
                 form_valid = false;
             }
+        }
+
+
+        if($('input[name="group_id"]:checked').length === 0) {
+            
+            var $toast = $('#toast');
+            if ($toast.css('display') != 'none') return;
+
+            $toast.fadeIn(100);
+            setTimeout(function () {
+                $toast.fadeOut(100);
+            }, 2000);
+
+            form_valid = false;
         }
         
         if(form_valid) {

@@ -3,6 +3,7 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from .. import app
+from ..consts import Constant
 
 
 db = SQLAlchemy(app)

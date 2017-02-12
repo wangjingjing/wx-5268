@@ -21,7 +21,7 @@ def get_next_schedule_id():
     return redis.get(Constant.SCHEDULE_ID_INCREMENT)
 
 
-def save_schedule_info(schedule):
+def save_schedule_info(schedule, group_ids):
     '''
 
     '''
@@ -35,6 +35,12 @@ def save_schedule_info(schedule):
             schedule.address_id = address_id
 
         db.session.add(schedule)
+
+        for group_id in group_ids:
+            schedule_group = ScheduleGroup(schedule.id, group_id)
+            db.session.add(schedule_group)
+
+            #TODO 更新组可见活动集合
 
         db.session.commit()
 
@@ -58,6 +64,7 @@ def add_address_info(addr_name):
 
 def create_address_name_index(addr_name, addr_id):
     '''
+
     '''
 
     hanzi_set = hanzi_util.tokenize(addr_name)
@@ -70,3 +77,22 @@ def create_address_name_index(addr_name, addr_id):
             addr_id)
 
     pipeline.execute()
+
+
+def get_all_group_id_name():
+    '''
+    获取全部分组的ID与组名
+    '''
+
+    if not redis.exists(Constant.ALL_GROUP_ID_NAME):
+
+        group_id_name = group.get_all_group_id_name()
+
+        pipeline = redis.pipeline(True)
+
+        for gid, gname in group_id_name:
+            pipeline.hset(Constant.ALL_GROUP_ID_NAME, gid, gname)
+
+        pipeline.execute()
+
+    return redis.hgetall(Constant.ALL_GROUP_ID_NAME)

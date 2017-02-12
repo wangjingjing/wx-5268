@@ -88,7 +88,8 @@ def get_scheduleid_of_group(group_id):
             return []
 
         for schedule_id, plan_date in group_schedules:
-            redis.sadd(redis_group_schedule, schedule_id)
+            redis.zadd(redis_group_schedule, schedule_id, 
+                get_timestamp_float_minute(plan_date))
 
         expire_date = group_schedules[0][1]
         # 设置组可见活动ID列表的缓存过期时间为第一个活动预订时间的DELAY_TIME时长后
@@ -100,7 +101,7 @@ def get_scheduleid_of_group(group_id):
         redis.hset(Constant.REDIS_PREFIX_GROUP + group_id, 
             Constant.REDIS_PREFIX_GROUP_SCHEDULESET, redis_group_schedule)
 
-    return redis.smembers(redis_group_schedule)
+    return redis.zrange(redis_group_schedule, 0, -1)
 
 
 def get_schedule_by_id(schedule_id):

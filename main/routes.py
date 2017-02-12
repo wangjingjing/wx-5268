@@ -89,9 +89,13 @@ def get_team_schedules():
 @app.route('/team/schedule/new')
 def new_team_schedule():
 
+    group_id_name = team_service.get_all_group_id_name()
+
     min_stamp = time.time() + + app.config['DELAY_TIME']*60
     min_time = get_specific_time_minute(min_stamp)
-    return render_template('team_schedule_save.html', schedule=None, min_time=min_time)
+
+    return render_template('team_schedule_save.html', schedule=None, 
+        group_id_name=group_id_name, min_time=min_time)
 
 
 @app.route('/team/schedule/save', methods=['GET', 'POST'])
@@ -121,7 +125,7 @@ def save_team_schedule():
 
     app.logger.debug(schedule)
 
-    team_service.save_schedule_info(schedule)
+    team_service.save_schedule_info(schedule, request.form.getlist('group_id'))
     
     success_msg = u'编号'
     return render_template('success.html', success_msg=success_msg)

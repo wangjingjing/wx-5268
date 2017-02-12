@@ -21,7 +21,7 @@ class Constant():
     REDIS_PREFIX_USER_ATTENDZSET = 'attendzset_'
 
     REDIS_PREFIX_GROUP = 'group:'
-    REDIS_PREFIX_GROUP_SCHEDULESET = 'scheduleset_'
+    REDIS_PREFIX_GROUP_SCHEDULESET = 'schedulezset_'
 
     REDIS_PREFIX_SCHEDULE = 'schedule:'
     REDIS_PREFIX_SCHEDULE_INFO = 'scheduleinfo_'
@@ -31,3 +31,5 @@ class Constant():
     ALL_ADDRESS_ID_NAME = 'all_addr_id_name'
     ALL_ADDRESS_NAME_HANZI = 'all_addr_name_hanzi'
     REDIS_PREFIX_ADDRESSNAME_HANZI = 'addr_name:'
+
+    ALL_GROUP_ID_NAME = 'all_group_id_name'

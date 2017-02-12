@@ -22,7 +22,7 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s %(levelname)s: %(message)s '
     '[in %(pathname)s:%(lineno)d]'
 ))
-handler.setLevel(logging.WARNING)
+handler.setLevel(logging.DEBUG)
 app.logger.addHandler(handler)
 
 # redis
