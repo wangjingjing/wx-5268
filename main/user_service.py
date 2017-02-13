@@ -8,6 +8,7 @@ from .consts import Constant
 from utils.json_util import *
 from utils.date_util import *
 from models import *
+import team_service
 
 
 def get_available_schedules_of_user(user_id):
@@ -21,7 +22,8 @@ def get_available_schedules_of_user(user_id):
     # 各组可见的活动ID做并集
     scheduleids = set()
     for group_id in user_groupids:
-        scheduleids = scheduleids.union(get_scheduleid_of_group(group_id))
+        scheduleids = scheduleids.union(
+            team_service.get_scheduleid_of_group(group_id))
 
     # 用户已报名活动ID列表
     apply_scheduleids = get_applied_scheduleids_of_user(user_id)
@@ -68,40 +70,6 @@ def get_groupid_of_user(user_id):
             Constant.REDIS_PREFIX_USER_GROUPSET, redis_user_group)
 
     return redis.smembers(redis_user_group)
-
-
-def get_scheduleid_of_group(group_id):
-    '''
-    获取指定组可见的活动ID集合
-    '''
-
-    redis_group_schedule = redis.hget(Constant.REDIS_PREFIX_GROUP + group_id, 
-        Constant.REDIS_PREFIX_GROUP_SCHEDULESET)
-
-    if redis_group_schedule is None or not redis.exists(redis_group_schedule):
-
-        redis_group_schedule = Constant.REDIS_PREFIX_GROUP_SCHEDULESET + str(time.time())
-
-        group_schedules = schedule_group.get_scheduleid_of_group(group_id)
-
-        if len(group_schedules) == 0:
-            return []
-
-        for schedule_id, plan_date in group_schedules:
-            redis.zadd(redis_group_schedule, schedule_id, 
-                get_timestamp_float_minute(plan_date))
-
-        expire_date = group_schedules[0][1]
-        # 设置组可见活动ID列表的缓存过期时间为第一个活动预订时间的DELAY_TIME时长后
-        expire_timestamp = int(get_timestamp_float_minute(expire_date
-            )) + app.config['DELAY_TIME']*60
-
-        redis.expireat(redis_group_schedule, expire_timestamp)
-
-        redis.hset(Constant.REDIS_PREFIX_GROUP + group_id, 
-            Constant.REDIS_PREFIX_GROUP_SCHEDULESET, redis_group_schedule)
-
-    return redis.zrange(redis_group_schedule, 0, -1)
 
 
 def get_schedule_by_id(schedule_id):
