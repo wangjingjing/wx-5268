@@ -3,6 +3,7 @@
 
 from . import db
 from .baseModel import BaseModel
+from ..consts import Constant
 
 
 class Address(BaseModel):
@@ -23,3 +24,8 @@ class Address(BaseModel):
     def update(self):
         db.session.commit()
         return self
+
+
+def get_all_address_id_name():
+    return db.session.query(Address.id, Address.name).filter(
+        Address.use_state == Constant.USE_STATE_YES).all()

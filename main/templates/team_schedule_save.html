@@ -5,6 +5,7 @@
 {{ super() }}
 <link rel="stylesheet" href="{{ config.WEUI_URI }}" />
 <link rel="stylesheet" href="{{ url_for('static', filename='datetimepicker/css/bootstrap-datetimepicker.min.css') }}" />
+<link rel="stylesheet" href="{{ url_for('static', filename='jquery-ui/css/jquery-ui.min.css') }}" />
 {% endblock %}
 
 {% block content %}
@@ -57,7 +58,7 @@
                 <div class="weui-cell__hd"><label for="" class="weui-label">地点</label></div>
                 <div class="weui-cell__bd">
                     <input class="weui-input" type="text" placeholder="" name="schedule_addr" id="schedule_addr" autocomplete="off" />
-                    <input type="hidden" name="schedule_addr_id">
+                    <input type="hidden" name="schedule_addr_id" id="schedule_addr_id">
                 </div>
             </div>
 
@@ -71,7 +72,7 @@
             <div class="weui-cell" id="div_opp">
                 <div class="weui-cell__hd"><label for="" class="weui-label">对手</label></div>
                 <div class="weui-cell__bd">
-                    <input class="weui-input" type="text" placeholder="" name="schedule_opp" id="schedule_opp"/>
+                    <input class="weui-input" type="text" placeholder="" name="schedule_opp" id="schedule_opp" autocomplete="off" />
                     <input type="hidden" name="schedule_opp_id" id="schedule_opp_id">
                 </div>
             </div>
@@ -123,6 +124,7 @@
 {{ super() }}
 <script src="{{ url_for('static', filename='datetimepicker/js/bootstrap-datetimepicker.min.js') }}"></script>
 <script src="{{ url_for('static', filename='datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js') }}"></script>
+<script src="{{ url_for('static', filename='jquery-ui/js/jquery-ui.min.js') }}"></script>
 
 <script type="text/javascript">
     
@@ -145,6 +147,16 @@
 
         $('#clear_time').click(function(){
             $('#schedule_date').val('');
+        });
+
+        $('#schedule_addr').autocomplete({
+            autoFocus: true,
+            source: '{{url_for('get_addressname_hint')}}',
+            select: function( event, ui ) {
+                $('#schedule_addr').val(ui.item.label);
+                $('#schedule_addr_id').val(ui.item.value);
+                event.preventDefault();
+            }
         });
     });
 

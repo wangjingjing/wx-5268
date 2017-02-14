@@ -7,6 +7,7 @@ from .consts import Constant
 from utils import hanzi_util
 from utils.date_util import *
 from models import *
+from dto import *
 
 
 def get_scheduleid_of_group(group_id):
@@ -53,7 +54,7 @@ def get_next_schedule_id():
 
     if not redis.exists(Constant.SCHEDULE_ID_INCREMENT):
 
-        max_schedule_id = get_max_schedule_id()
+        max_schedule_id = schedule.get_max_schedule_id()
         redis.set(Constant.SCHEDULE_ID_INCREMENT, max_schedule_id)
 
     redis.incr(Constant.SCHEDULE_ID_INCREMENT)
@@ -95,6 +96,8 @@ def add_address_info(addr_name):
     db.session.flush()
 
     create_address_name_index(addr_name, address.id)
+
+    redis.hset(Constant.ALL_ADDRESS_ID_NAME, address.id, addr_name)
     
     return address.id
 
@@ -103,7 +106,29 @@ def get_address_name(addr_id):
     '''
 
     '''
-    pass
+
+    addr_id_name = get_all_address_id_name()
+
+    return addr_id_name[addr_id].decode('utf-8')
+
+
+def get_all_address_id_name():
+    '''
+    获取全部地址的ID与地址名
+    '''
+
+    if not redis.exists(Constant.ALL_ADDRESS_ID_NAME):
+
+        address_id_name = address.get_all_address_id_name()
+
+        pipeline = redis.pipeline(True)
+
+        for addr_id, addr_name in address_id_name:
+            pipeline.hset(Constant.ALL_ADDRESS_ID_NAME, addr_id, addr_name)
+
+        pipeline.execute()
+
+    return redis.hgetall(Constant.ALL_ADDRESS_ID_NAME)
 
 
 def create_address_name_index(addr_name, addr_id):
@@ -123,7 +148,7 @@ def create_address_name_index(addr_name, addr_id):
     pipeline.execute()
 
 
-def save_schedule_groups(groupids, schedule_id, schedule_plandate):
+def save_schedule_groups(group_ids, schedule_id, schedule_plandate):
     '''
     插入活动-组关系数据，更新组可见活动集合缓存，如果新建活动是集合中日期最近的，
     则将新活动的时间更新为组可见活动集合的过期时间
@@ -132,7 +157,7 @@ def save_schedule_groups(groupids, schedule_id, schedule_plandate):
     pipeline = redis.pipeline(True)
 
     for group_id in group_ids:
-        schedule_group = ScheduleGroup(schedule.id, group_id)
+        schedule_group = ScheduleGroup(schedule_id, group_id)
         db.session.add(schedule_group)
 
         get_scheduleid_of_group(group_id)
@@ -143,18 +168,23 @@ def save_schedule_groups(groupids, schedule_id, schedule_plandate):
 
         if redis_group_schedule is None or not redis.exists(redis_group_schedule):
             redis_group_schedule = Constant.REDIS_PREFIX_GROUP_SCHEDULESET + str(time.time())
-        
+
         pipeline.zadd(redis_group_schedule, schedule_id, 
             get_timestamp_float_minute(schedule_plandate))
 
-        id, plan_date = redis.zrange(redis_group_schedule, 0, 1, withscores=True)
+        # 使用pipeline，所以新数据还没有加到缓存中，缓存有可能是空的
+        if redis.exists(redis_group_schedule):
+            id, plan_date = redis.zrange(redis_group_schedule, 0, 1, withscores=True)
+
+            # 如果新的活动时间比原缓存集合中时间最小的大，则不执行后面更新缓存过期时间的操作
+            if(cmp(schedule_plandate, plan_date) >= 0):
+                continue
 
         # 如果新建活动的预计时间是组可见集合中最近的，
         # 则将新建活动的预计时间（加延长时间）设为缓存过期时间
-        if(cmp(schedule_plandate, plan_date) <= 0):
-            expire_timestamp = int(get_timestamp_float_minute(schedule_plandate
+        expire_timestamp = int(get_timestamp_float_minute(schedule_plandate
                 )) + app.config['DELAY_TIME']*60
-            pipeline.expireat(redis_group_schedule, expire_timestamp)
+        pipeline.expireat(redis_group_schedule, expire_timestamp)
 
     pipeline.execute()
 
@@ -176,3 +206,29 @@ def get_all_group_id_name():
         pipeline.execute()
 
     return redis.hgetall(Constant.ALL_GROUP_ID_NAME)
+
+
+def get_address_hints_by_index(addr_name):
+    '''
+
+    '''
+
+    hanzi_set = hanzi_util.tokenize(addr_name)
+
+    keyset = map(lambda x : Constant.REDIS_PREFIX_ADDRESSNAME_HANZI 
+        + x.encode('utf-8'), hanzi_set)
+
+    if not keyset:
+        return []
+
+    addr_id_set = redis.sinter(*keyset)
+
+    addr_id_name = get_all_address_id_name()
+
+    hints = []
+    for addr_id in addr_id_set:
+        addr_name = addr_id_name[addr_id].decode('utf-8')
+        hint = Hint(addr_name, addr_id)
+        hints.append(hint)
+
+    return hints

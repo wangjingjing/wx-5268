@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import render_template, request
+from flask import render_template, request, jsonify
 from . import app
 import time
+import json
 import user_service, team_service
 from utils.date_util import *
 from models import Schedule
@@ -129,4 +130,14 @@ def save_team_schedule():
     
     success_msg = u'编号'
     return render_template('success.html', success_msg=success_msg)
+
+
+@app.route('/team/address/hint')
+def get_addressname_hint():
+    
+    term = request.args.get('term')
+    
+    hints = team_service.get_address_hints_by_index(term)
+
+    return jsonify([hint.serialize() for hint in hints])
 

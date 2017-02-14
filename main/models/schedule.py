@@ -45,3 +45,8 @@ class Schedule(BaseModel):
         db.session.merge(self)
         db.session.commit()
         return self
+
+
+def get_max_schedule_id():
+    max_id, = db.session.execute('select max(id) from SCHEDULE_INFO').first()
+    return max_id

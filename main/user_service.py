@@ -92,7 +92,7 @@ def get_schedule_by_id(schedule_id):
             return
 
         # 将活动对象序列化为json串，保存至redis中
-        redis.set(redis_schedule, json.dumps(schedule_info, cls=JsonEncoderUtil))
+        redis.set(redis_schedule, json.dumps(schedule_info, cls=ModelEncoder))
 
         # 设置缓存时间为90天
         redis.expire(redis_schedule, 90 * 24 * 60 * 60)

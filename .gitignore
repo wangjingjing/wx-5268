@@ -93,3 +93,6 @@ ENV/
 
 # redis
 *.rdb
+
+# log
+*.log.*

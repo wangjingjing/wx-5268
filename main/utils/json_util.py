@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 
 
-import json
+from json import JSONEncoder
 import datetime
 
 
-class JsonEncoderUtil(json.JSONEncoder):
+class ModelEncoder(JSONEncoder):
 
     def default(self, obj):
 
@@ -17,7 +17,7 @@ class JsonEncoderUtil(json.JSONEncoder):
         try:
             return obj.to_json()
         except AttributeError:
-            return json.JSONEncoder.default(self, obj)
+            return JSONEncoder.default(self, obj)
 
 
 def dict_to_object(d):

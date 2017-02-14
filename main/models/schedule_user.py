@@ -42,3 +42,9 @@ def get_attend_schedules_of_user(user_id):
         ScheduleUser.user_id == user_id, 
         ScheduleUser.use_state == Constant.USE_STATE_YES,
         Schedule.status == Constant.SCHEDULE_STATUS_OFF).order_by(Schedule.plan_date.desc()).all()
+
+def get_active_schedule_user(schedule_id, user_id):
+    return db.session.query(ScheduleUser).filter(
+        ScheduleUser.schedule_id == schedule_id,
+        ScheduleUser.user_id == user_id, 
+        ScheduleUser.use_state == Constant.USE_STATE_YES).one()
